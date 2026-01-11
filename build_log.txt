@@ -1,0 +1,14 @@
+
+> study-stream@1.0.0 build
+> next build && npm run electron:build
+
+▲ Next.js 16.1.1 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 62s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+
+> Build error occurred
+Error: Page "/course/[courseId]" is missing "generateStaticParams()" so it cannot be used with "output: export" config.
+    at ignore-listed frames
