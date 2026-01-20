@@ -21,10 +21,16 @@ const electron_updater_1 = require("electron-updater");
 // Configure Auto Updater
 electron_updater_1.autoUpdater.autoDownload = false;
 electron_updater_1.autoUpdater.autoInstallOnAppQuit = true;
+// Logger
+electron_updater_1.autoUpdater.logger = console;
 const loadURL = (0, electron_serve_1.default)({ directory: "out" });
 let mainWindow = null;
 let splashWindow = null;
 const isDev = !electron_1.app.isPackaged || process.env.NODE_ENV === "development";
+// Enable updates in Dev Mode for testing
+if (isDev) {
+    electron_updater_1.autoUpdater.forceDevUpdateConfig = true;
+}
 // ... imports
 // Register privileged schemes immediately
 electron_1.protocol.registerSchemesAsPrivileged([
@@ -483,29 +489,69 @@ electron_updater_1.autoUpdater.on('download-progress', (progressObj) => {
 electron_updater_1.autoUpdater.on('update-downloaded', (info) => {
     sendToWindow('update-downloaded', info);
 });
-electron_1.ipcMain.handle("check-for-update", () => {
-    if (isDev) {
-        console.log('[AutoUpdate] Skipped in Dev Mode');
-        return null;
+// Configure Auto Updater
+electron_updater_1.autoUpdater.autoDownload = false;
+electron_updater_1.autoUpdater.autoInstallOnAppQuit = true;
+// Enable updates in Dev Mode for testing
+if (isDev) {
+    electron_updater_1.autoUpdater.forceDevUpdateConfig = true;
+}
+// Logger
+electron_updater_1.autoUpdater.logger = console;
+// ... (rest of code)
+electron_1.ipcMain.handle("check-for-update", () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('[AutoUpdate] Manual check triggered');
+    try {
+        const result = yield electron_updater_1.autoUpdater.checkForUpdates();
+        console.log('[AutoUpdate] Check result:', result);
+        return result;
     }
-    return electron_updater_1.autoUpdater.checkForUpdates();
-});
+    catch (error) {
+        console.error('[AutoUpdate] Error during check:', error);
+        throw error;
+    }
+}));
 electron_1.ipcMain.handle("download-update", () => {
     return electron_updater_1.autoUpdater.downloadUpdate();
 });
 electron_1.ipcMain.handle("quit-and-install", () => {
     electron_updater_1.autoUpdater.quitAndInstall();
 });
+// DEV: Simulation Handlers
+electron_1.ipcMain.handle("dev-simulate-update-available", () => {
+    console.log('[Dev] Simulating update-available');
+    sendToWindow('update-available', { version: '2.0.0', releaseNotes: 'Dev Simulation' });
+});
+electron_1.ipcMain.handle("dev-simulate-update-progress", () => {
+    console.log('[Dev] Simulating update-progress');
+    // Simulate a fast download
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        sendToWindow('update-progress', { percent: progress });
+        if (progress >= 100)
+            clearInterval(interval);
+    }, 200);
+});
+electron_1.ipcMain.handle("dev-simulate-update-downloaded", () => {
+    console.log('[Dev] Simulating update-downloaded');
+    sendToWindow('update-downloaded', { version: '2.0.0' });
+});
+electron_1.ipcMain.handle("get-app-version", () => {
+    return electron_1.app.getVersion();
+});
 electron_1.app.whenReady().then(() => {
     // Start both
     createSplashWindow();
     createWindow();
-    // Check for updates shortly after startup (only in prod)
-    if (!isDev) {
-        setTimeout(() => {
-            electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
-        }, 3000);
-    }
+    // Check for updates on startup (delay slightly to let UI load)
+    setTimeout(() => {
+        electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
+    }, 3000);
+    // Poll for updates every 60 minutes
+    setInterval(() => {
+        electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
+    }, 60 * 60 * 1000);
     // Listen for splash completion
     electron_1.ipcMain.on('splash-finished', () => {
         if (splashWindow) {

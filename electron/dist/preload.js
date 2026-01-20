@@ -11,6 +11,7 @@ electron_1.contextBridge.exposeInMainWorld("electron", {
     send: (channel, data) => electron_1.ipcRenderer.send(channel, data),
     resizeWindow: (maximize) => electron_1.ipcRenderer.invoke("resize-window", maximize),
     // Auto Update
+    getAppVersion: () => electron_1.ipcRenderer.invoke('get-app-version'),
     onUpdateAvailable: (callback) => electron_1.ipcRenderer.on('update-available', (_, info) => callback(info)),
     onUpdateDownloaded: (callback) => electron_1.ipcRenderer.on('update-downloaded', (_, info) => callback(info)),
     onUpdateProgress: (callback) => electron_1.ipcRenderer.on('update-progress', (_, progress) => callback(progress)),
@@ -18,4 +19,8 @@ electron_1.contextBridge.exposeInMainWorld("electron", {
     checkUpdate: () => electron_1.ipcRenderer.invoke('check-for-update'),
     downloadUpdate: () => electron_1.ipcRenderer.invoke('download-update'),
     quitAndInstall: () => electron_1.ipcRenderer.invoke('quit-and-install'),
+    // Dev Tools
+    simulateUpdateAvailable: () => electron_1.ipcRenderer.invoke('dev-simulate-update-available'),
+    simulateUpdateProgress: () => electron_1.ipcRenderer.invoke('dev-simulate-update-progress'),
+    simulateUpdateDownloaded: () => electron_1.ipcRenderer.invoke('dev-simulate-update-downloaded'),
 });

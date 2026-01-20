@@ -480,6 +480,53 @@ export default function SettingsPage() {
                                     </div>
                                     <p className="text-[10px] text-gray-500">*Adds generic study time to the graph.</p>
                                 </div>
+
+                                <div className="p-3 bg-purple-950/20 border border-purple-900/30 rounded-lg flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-semibold text-purple-300">Auto-Updater Test</p>
+                                        <p className="text-[10px] text-gray-500">Force check for GitHub Releases.</p>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 text-xs border-purple-500/30 hover:bg-purple-950/30"
+                                        onClick={async () => {
+                                            const { toast } = await import("sonner");
+                                            toast.info("Checking for updates...");
+                                            try {
+                                                const result = await (window as any).electron.checkUpdate();
+                                                console.log("Check Result:", result);
+                                                if (result) {
+                                                    toast.success(`Check Complete. Version info: ${JSON.stringify(result.updateInfo?.version || "unknown")}`);
+                                                } else {
+                                                    toast.warning("Check Complete. No update info returned.");
+                                                }
+                                            } catch (e: any) {
+                                                console.error(e);
+                                                toast.error("Check Failed: " + e.message);
+                                            }
+                                        }}
+                                    >
+                                        Check Updates
+                                    </Button>
+                                </div>
+
+                                {/* Simulation Tools */}
+                                <div className="p-3 bg-pink-950/20 border border-pink-900/30 rounded-lg space-y-2">
+                                    <p className="text-xs font-semibold text-pink-300">UI Simulation</p>
+                                    <div className="flex gap-2">
+                                        <Button size="sm" variant="secondary" className="h-6 text-[10px]" onClick={() => (window as any).electron.simulateUpdateAvailable()}>
+                                            1. Found
+                                        </Button>
+                                        <Button size="sm" variant="secondary" className="h-6 text-[10px]" onClick={() => (window as any).electron.simulateUpdateProgress()}>
+                                            2. Download
+                                        </Button>
+                                        <Button size="sm" variant="secondary" className="h-6 text-[10px]" onClick={() => (window as any).electron.simulateUpdateDownloaded()}>
+                                            3. Ready
+                                        </Button>
+                                    </div>
+                                    <p className="text-[10px] text-gray-500">Triggers the UI toasts without real update.</p>
+                                </div>
                             </div>
                         )}
                     </div>

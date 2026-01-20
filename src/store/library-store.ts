@@ -4,19 +4,172 @@ import { persist, createJSONStorage, StateStorage } from 'zustand/middleware'
 import { Course, LibraryState, UserProfile } from '@/types'
 import { get, set, del } from 'idb-keyval'
 
-// Custom Async Storage Adapter using IndexedDB
+// Storage keys
+const MAIN_STORAGE_KEY = 'library-storage-v3';
+const BACKUP_STORAGE_KEY = 'library-storage-v3-backup';
+
+/**
+ * Validates if the persisted state has a valid structure
+ */
+function isValidState(data: any): boolean {
+    try {
+        if (!data || typeof data !== 'object') return false;
+
+        const state = data.state;
+        if (!state || typeof state !== 'object') return false;
+
+        // Check for essential properties
+        if (!Array.isArray(state.courses)) {
+            console.error('[Storage] Invalid state: courses is not an array');
+            return false;
+        }
+
+        // Additional validation can be added here
+        return true;
+    } catch (e) {
+        console.error('[Storage] Validation error:', e);
+        return false;
+    }
+}
+
+/**
+ * Creates a backup-enabled localStorage wrapper that:
+ * 1. Backs up data before each write
+ * 2. Validates data integrity on read
+ * 3. Restores from backup if main storage is corrupted
+ */
+function createBackupStorage(): Storage {
+    return {
+        get length() {
+            return localStorage.length;
+        },
+
+        key(index: number): string | null {
+            return localStorage.key(index);
+        },
+
+        getItem(key: string): string | null {
+            try {
+                const mainData = localStorage.getItem(key);
+
+                // If it's the main storage key, validate and potentially recover
+                if (key === MAIN_STORAGE_KEY) {
+                    if (mainData) {
+                        try {
+                            const parsed = JSON.parse(mainData);
+                            if (isValidState(parsed)) {
+                                console.log('[Storage] Main storage valid');
+                                return mainData;
+                            } else {
+                                console.warn('[Storage] Main storage corrupted, attempting recovery');
+                            }
+                        } catch (e) {
+                            console.error('[Storage] Main storage parse error:', e);
+                        }
+                    }
+
+                    // Main storage is missing or corrupted - try backup
+                    const backupData = localStorage.getItem(BACKUP_STORAGE_KEY);
+                    if (backupData) {
+                        try {
+                            const parsed = JSON.parse(backupData);
+                            if (isValidState(parsed)) {
+                                console.log('[Storage] Recovered from backup!');
+                                // Restore backup to main
+                                localStorage.setItem(key, backupData);
+                                return backupData;
+                            }
+                        } catch (e) {
+                            console.error('[Storage] Backup parse error:', e);
+                        }
+                    }
+
+                    console.warn('[Storage] No valid data found in main or backup');
+                    return null;
+                }
+
+                return mainData;
+            } catch (e) {
+                console.error('[Storage] getItem error:', e);
+                return null;
+            }
+        },
+
+        setItem(key: string, value: string): void {
+            try {
+                // If it's the main storage key, backup before writing
+                if (key === MAIN_STORAGE_KEY) {
+                    // Validate new data before saving
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (!isValidState(parsed)) {
+                            console.error('[Storage] Attempted to save invalid state, aborting');
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('[Storage] Invalid JSON in setItem, aborting');
+                        return;
+                    }
+
+                    // Backup current valid data before overwriting
+                    const currentData = localStorage.getItem(key);
+                    if (currentData) {
+                        try {
+                            const currentParsed = JSON.parse(currentData);
+                            if (isValidState(currentParsed)) {
+                                localStorage.setItem(BACKUP_STORAGE_KEY, currentData);
+                                console.log('[Storage] Backup created successfully');
+                            }
+                        } catch (e) {
+                            // Current data is corrupted, don't create corrupt backup
+                            console.warn('[Storage] Skipping backup - current data invalid');
+                        }
+                    }
+                }
+
+                localStorage.setItem(key, value);
+                console.log('[Storage] Saved:', key);
+            } catch (e) {
+                console.error('[Storage] setItem error:', e);
+            }
+        },
+
+        removeItem(key: string): void {
+            try {
+                localStorage.removeItem(key);
+            } catch (e) {
+                console.error('[Storage] removeItem error:', e);
+            }
+        },
+
+        clear(): void {
+            try {
+                localStorage.clear();
+            } catch (e) {
+                console.error('[Storage] clear error:', e);
+            }
+        }
+    };
+}
+
+// Create the backup-enabled storage
+const backupStorage = createBackupStorage();
+
+// Custom Async Storage Adapter using IndexedDB (kept for reference, not currently used)
 const storage: StateStorage = {
     getItem: async (name: string): Promise<string | null> => {
-        // console.log(name, 'has been retrieved')
-        return (await get(name)) || null
+        console.log('[Storage] Get:', name);
+        const value = await get(name);
+        console.log('[Storage] Retrieved:', value ? 'Found Data' : 'NULL');
+        return value || null;
     },
     setItem: async (name: string, value: string): Promise<void> => {
-        // console.log(name, 'with value', value, 'has been saved')
-        await set(name, value)
+        console.log('[Storage] Set:', name, '(length:', value.length, ')');
+        await set(name, value);
     },
     removeItem: async (name: string): Promise<void> => {
-        // console.log(name, 'has been deleted')
-        await del(name)
+        console.log('[Storage] Remove:', name);
+        await del(name);
     },
 }
 
@@ -488,16 +641,16 @@ export const useLibraryStore = create<LibraryState>()(
             }
         }),
         {
-            name: 'library-storage-v2', // Bump version to force clear old unsorted data
-            storage: createJSONStorage(() => storage), // Persist to IndexedDB (Async)
+            name: 'library-storage-v3', // Storage key
+            storage: createJSONStorage(() => backupStorage), // Use backup-enabled storage wrapper
             merge: (persistedState: any, currentState: LibraryState) => {
+                console.log('[Persistence] Merging state. Persisted courses:', persistedState?.courses?.length);
                 return {
                     ...currentState,
                     ...persistedState,
                     settings: {
                         ...currentState.settings,
                         ...(persistedState.settings || {}),
-                        // Deep merge shortcuts to ensure defaults exist if persisted state is missing them
                         shortcuts: {
                             ...currentState.settings.shortcuts,
                             ...(persistedState.settings?.shortcuts || {})

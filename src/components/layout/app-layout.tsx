@@ -7,10 +7,10 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, Library, FileText, Settings, BarChart2, FolderSearch, BrainCircuit, Bookmark } from "lucide-react"
 import { StreakIndicator } from "./streak-indicator"
-import { StreakIndicator } from "./streak-indicator"
 import { AppTour } from "./app-tour"
 import { toast } from "sonner"
 import { useEffect } from "react"
+import { HelpModal } from "./help-modal"
 
 interface AppLayoutProps {
     children: React.ReactNode
@@ -120,9 +120,12 @@ export function AppLayout({ children }: AppLayoutProps) {
                     })}
                 </nav>
 
+
+
                 {/* Footer / Status Area */}
-                <div className="p-4 border-t border-border bg-black/20">
+                <div className="p-4 border-t border-border bg-black/20 flex items-center justify-between">
                     <StreakIndicator />
+                    <HelpModal />
                 </div>
             </aside>
 

@@ -950,6 +950,17 @@ export const VideoPlayer = React.memo(({
                                         {activeSubtitle && <span className="absolute top-1 right-1 h-1.5 w-1.5 bg-primary rounded-full shadow-sm ring-1 ring-black/50" />}
                                     </Button>
 
+                                    {/* Speed Control */}
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => cycleSpeed(1)}
+                                        className="text-white hover:bg-white/10 h-8 px-2 min-w-[3rem] font-mono text-xs"
+                                        title="Playback Speed (Click to cycle)"
+                                    >
+                                        {playbackRate}x
+                                    </Button>
+
                                     {/* Bookmark Button */}
                                     <Button variant="ghost" size="icon" onClick={handleBookmarkClick} className={cn("text-white hover:bg-white/10 h-8 w-8", showBookmarkInput && "bg-white/10")} title="Bookmark Timestamp">
                                         <BookmarkIcon className="h-4 w-4" />

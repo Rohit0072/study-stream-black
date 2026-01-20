@@ -11,11 +11,19 @@ import { autoUpdater } from "electron-updater";
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 
+// Logger
+autoUpdater.logger = console;
+
 const loadURL = serve({ directory: "out" });
 
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: BrowserWindow | null = null;
 const isDev = !app.isPackaged || process.env.NODE_ENV === "development";
+
+// Enable updates in Dev Mode for testing
+if (isDev) {
+    autoUpdater.forceDevUpdateConfig = true;
+}
 
 // ... imports
 
@@ -516,12 +524,29 @@ autoUpdater.on('update-downloaded', (info) => {
     sendToWindow('update-downloaded', info);
 });
 
-ipcMain.handle("check-for-update", () => {
-    if (isDev) {
-        console.log('[AutoUpdate] Skipped in Dev Mode');
-        return null;
+// Configure Auto Updater
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+// Enable updates in Dev Mode for testing
+if (isDev) {
+    autoUpdater.forceDevUpdateConfig = true;
+}
+
+// Logger
+autoUpdater.logger = console;
+
+// ... (rest of code)
+
+ipcMain.handle("check-for-update", async () => {
+    console.log('[AutoUpdate] Manual check triggered');
+    try {
+        const result = await autoUpdater.checkForUpdates();
+        console.log('[AutoUpdate] Check result:', result);
+        return result;
+    } catch (error) {
+        console.error('[AutoUpdate] Error during check:', error);
+        throw error;
     }
-    return autoUpdater.checkForUpdates();
 });
 
 ipcMain.handle("download-update", () => {
@@ -532,17 +557,44 @@ ipcMain.handle("quit-and-install", () => {
     autoUpdater.quitAndInstall();
 });
 
+// DEV: Simulation Handlers
+ipcMain.handle("dev-simulate-update-available", () => {
+    console.log('[Dev] Simulating update-available');
+    sendToWindow('update-available', { version: '2.0.0', releaseNotes: 'Dev Simulation' });
+});
+ipcMain.handle("dev-simulate-update-progress", () => {
+    console.log('[Dev] Simulating update-progress');
+    // Simulate a fast download
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        sendToWindow('update-progress', { percent: progress });
+        if (progress >= 100) clearInterval(interval);
+    }, 200);
+});
+ipcMain.handle("dev-simulate-update-downloaded", () => {
+    console.log('[Dev] Simulating update-downloaded');
+    sendToWindow('update-downloaded', { version: '2.0.0' });
+});
+
+ipcMain.handle("get-app-version", () => {
+    return app.getVersion();
+});
+
 app.whenReady().then(() => {
     // Start both
     createSplashWindow();
     createWindow();
 
-    // Check for updates shortly after startup (only in prod)
-    if (!isDev) {
-        setTimeout(() => {
-            autoUpdater.checkForUpdatesAndNotify();
-        }, 3000);
-    }
+    // Check for updates on startup (delay slightly to let UI load)
+    setTimeout(() => {
+        autoUpdater.checkForUpdatesAndNotify();
+    }, 3000);
+
+    // Poll for updates every 60 minutes
+    setInterval(() => {
+        autoUpdater.checkForUpdatesAndNotify();
+    }, 60 * 60 * 1000);
 
     // Listen for splash completion
     ipcMain.on('splash-finished', () => {
