@@ -70,12 +70,23 @@ export function HelpModal() {
     };
 
     const startDownload = () => {
-        setStatus('downloading');
-        (window as any).electron.downloadUpdate();
+        try {
+            setStatus('downloading');
+            (window as any).electron?.downloadUpdate?.();
+        } catch (e) {
+            console.error("[HelpModal] Download error:", e);
+            toast.error("Failed to start download");
+            setStatus('available');
+        }
     };
 
     const installUpdate = () => {
-        (window as any).electron.quitAndInstall();
+        try {
+            (window as any).electron?.quitAndInstall?.();
+        } catch (e) {
+            console.error("[HelpModal] Install error:", e);
+            toast.error("Failed to install update");
+        }
     };
 
     return (

@@ -8,10 +8,19 @@ import { useLibraryStore } from "@/store/library-store";
 import { useRouter } from "next/navigation";
 import { Course, Video } from "@/types";
 import { ProgressChart } from "@/components/dashboard/progress-chart";
+import { useEffect } from "react";
 
 export default function Home() {
   const { courses } = useLibraryStore();
   const router = useRouter();
+
+  // Handle onboarding redirect
+  useEffect(() => {
+    const hasFinishedOnboarding = localStorage.getItem('hasFinishedOnboarding');
+    if (!hasFinishedOnboarding) {
+      router.replace('/welcome');
+    }
+  }, [router]);
 
   // Get recently played videos
   const getRecentActivity = () => {

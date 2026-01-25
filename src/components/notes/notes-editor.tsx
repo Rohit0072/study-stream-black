@@ -171,7 +171,7 @@ export function NotesEditor({ courseId, videoId, className, currentVideo }: Note
             let subtitleText = "";
             if (window.electron && window.electron.readSubtitle && trackToUse.path) {
                 try {
-                    subtitleText = await window.electron.readSubtitle(trackToUse.path);
+                    subtitleText = await window.electron.readSubtitle(trackToUse.path) || "";
                 } catch (e) {
                     console.error("Electron read failed, trying stream...", e);
                 }

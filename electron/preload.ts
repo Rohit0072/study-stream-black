@@ -25,4 +25,8 @@ contextBridge.exposeInMainWorld("electron", {
     simulateUpdateAvailable: () => ipcRenderer.invoke('dev-simulate-update-available'),
     simulateUpdateProgress: () => ipcRenderer.invoke('dev-simulate-update-progress'),
     simulateUpdateDownloaded: () => ipcRenderer.invoke('dev-simulate-update-downloaded'),
+
+    // Auto-start with Windows
+    setAutoStart: (enabled: boolean) => ipcRenderer.invoke('set-auto-start', enabled),
+    getAutoStart: () => ipcRenderer.invoke('get-auto-start'),
 });

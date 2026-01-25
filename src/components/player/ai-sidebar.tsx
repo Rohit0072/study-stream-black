@@ -98,7 +98,7 @@ export const AiSidebar: React.FC<AiSidebarProps> = ({ courseId, videoId, videoTi
             if (activeSubtitle.startsWith('/') || activeSubtitle.match(/^[a-zA-Z]:\\/)) {
                 if (window.electron && window.electron.readSubtitle) {
                     try {
-                        subtitleText = await window.electron.readSubtitle(activeSubtitle);
+                        subtitleText = (await window.electron.readSubtitle(activeSubtitle)) || "";
                     } catch (err) {
                         console.error("Failed to read subtitle file:", err);
                     }

@@ -436,6 +436,32 @@ export default function SettingsPage() {
                     </div>
 
 
+                    {/* Startup Settings */}
+                    <div className="bg-[#111] p-6 rounded-xl border border-[#333]">
+                        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                            <Monitor className="h-5 w-5 text-cyan-400" />
+                            Startup
+                        </h2>
+
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-sm font-medium text-gray-200">Start with Windows</h3>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    Launch Study Stream in the background when you log in.
+                                    Enables background reminders even if you forget to open the app.
+                                </p>
+                            </div>
+                            <Switch
+                                checked={settings.autoStartWithWindows || false}
+                                onCheckedChange={async (enabled) => {
+                                    const store = useLibraryStore.getState();
+                                    if ((store as any).setAutoStartWithWindows) {
+                                        await (store as any).setAutoStartWithWindows(enabled);
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
 
                     {/* Developer Settings */}
                     <div className="bg-[#111] p-6 rounded-xl border border-[#333]">

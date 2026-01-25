@@ -88,7 +88,7 @@ export const AiFeatures: React.FC<AiFeaturesProps> = ({ courseId, videoId, video
             if (subtitlePath.startsWith('/') || subtitlePath.match(/^[a-zA-Z]:\\/)) {
                 if (window.electron && window.electron.readSubtitle) {
                     try {
-                        subtitleText = await window.electron.readSubtitle(subtitlePath);
+                        subtitleText = (await window.electron.readSubtitle(subtitlePath as string)) || "";
                     } catch (err) {
                         console.error("Failed to read subtitle file:", err);
                     }

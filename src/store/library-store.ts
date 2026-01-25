@@ -41,14 +41,21 @@ function isValidState(data: any): boolean {
 function createBackupStorage(): Storage {
     return {
         get length() {
+            if (typeof window === 'undefined') return 0;
             return localStorage.length;
         },
 
         key(index: number): string | null {
+            if (typeof window === 'undefined') return null;
             return localStorage.key(index);
         },
 
         getItem(key: string): string | null {
+            // SSR guard - localStorage doesn't exist on server
+            if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+                return null;
+            }
+
             try {
                 const mainData = localStorage.getItem(key);
 
@@ -96,6 +103,9 @@ function createBackupStorage(): Storage {
         },
 
         setItem(key: string, value: string): void {
+            // SSR guard
+            if (typeof window === 'undefined') return;
+
             try {
                 // If it's the main storage key, backup before writing
                 if (key === MAIN_STORAGE_KEY) {
@@ -135,6 +145,7 @@ function createBackupStorage(): Storage {
         },
 
         removeItem(key: string): void {
+            if (typeof window === 'undefined') return;
             try {
                 localStorage.removeItem(key);
             } catch (e) {
@@ -143,6 +154,7 @@ function createBackupStorage(): Storage {
         },
 
         clear(): void {
+            if (typeof window === 'undefined') return;
             try {
                 localStorage.clear();
             } catch (e) {
@@ -241,7 +253,8 @@ export const useLibraryStore = create<LibraryState>()(
                     "bookmarks": "Ctrl+2",
                     "settings": "Ctrl+3"
                 },
-                hasSeenTour: false
+                hasSeenTour: false,
+                autoStartWithWindows: false
             },
             todos: [],
             quizResults: [],
@@ -256,6 +269,7 @@ export const useLibraryStore = create<LibraryState>()(
             // User Profile
             userProfile: {
                 name: "Student",
+                age: 0,
                 studyGoal: 2, // Default 2h
                 preferredTime: "any"
             },
@@ -274,6 +288,17 @@ export const useLibraryStore = create<LibraryState>()(
             setHasSeenTour: () => set((state) => ({
                 settings: { ...state.settings, hasSeenTour: true }
             })),
+
+            setAutoStartWithWindows: async (enabled: boolean) => {
+                // Update local state
+                set((state) => ({
+                    settings: { ...state.settings, autoStartWithWindows: enabled }
+                }));
+                // Call Electron to update registry
+                if (typeof window !== 'undefined' && (window as any).electron?.setAutoStart) {
+                    await (window as any).electron.setAutoStart(enabled);
+                }
+            },
 
             setApiKey: (key) => set((state) => ({
                 settings: { ...state.settings, geminiApiKey: key }
@@ -619,11 +644,13 @@ export const useLibraryStore = create<LibraryState>()(
                             "bookmarks": "Ctrl+2",
                             "settings": "Ctrl+3"
                         },
-                        hasSeenTour: false
+                        hasSeenTour: false,
+                        autoStartWithWindows: false
                     },
                     fluxZeroGpuUuid: null,
                     userProfile: {
                         name: "Student",
+                        age: 0,
                         studyGoal: 2,
                         preferredTime: "any"
                     },

@@ -34,17 +34,20 @@ export default function ScanFilesPage() {
                 return;
             }
 
-            const result = await (window as any).electron.selectDirectory();
-            if (result.canceled || result.filePaths.length === 0) return;
+            const result = await (window as any).electron.selectFolder();
 
-            const path = result.filePaths[0];
+            // Handle null/undefined result (user cancelled)
+            if (!result) return;
+
+            // Handle different API response formats
+            const path = typeof result === 'string' ? result : result.path || result.id;
+            if (!path) return;
+
             setScanningPath(path);
             setStep("scanning");
 
-            // Simulate "Parsing" delay or real scan
-            // Real scan:
             try {
-                const course = await (window as any).electron.scanDirectory(path);
+                const course = await (window as any).electron.scanDirectory?.(path) || result;
                 if (course) {
                     setStagedCourses(prev => [...prev, course]);
                     setStep("review");
@@ -53,13 +56,13 @@ export default function ScanFilesPage() {
                     setStep("idle");
                 }
             } catch (err) {
-                console.error(err);
+                console.error("[ScanPage] Scan error:", err);
                 alert("Error scanning directory.");
                 setStep("idle");
             }
 
         } catch (error) {
-            console.error("Selection error:", error);
+            console.error("[ScanPage] Selection error:", error);
             setStep("idle");
         }
     };

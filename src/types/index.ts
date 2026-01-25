@@ -100,8 +100,112 @@ export interface ChatMessage {
     timestamp: number;
 }
 
+// ============================================
+// ACTIVE AI TYPES
+// ============================================
+
+/** A fact learned about the user from conversations or questions */
+export interface UserFact {
+    id: string;
+    category: 'hobby' | 'preference' | 'goal' | 'personality' | 'interest' | 'schedule';
+    key: string;           // e.g., "favorite_anime", "study_preference"
+    value: string;         // e.g., "One Piece", "morning person"
+    confidence: number;    // 0-1 how certain AI is about this fact
+    source: 'chat' | 'question' | 'inferred' | 'manual';
+    createdAt: number;
+    updatedAt: number;
+}
+
+/** A daily question asked to learn more about the user */
+export interface DailyQuestion {
+    id: string;
+    question: string;
+    answer: string | null;
+    askedAt: number;
+    answeredAt: number | null;
+    category: 'hobby' | 'learning' | 'motivation' | 'schedule' | 'personality';
+}
+
+/** AI Memory - stores everything the AI knows about the user */
+export interface AIMemory {
+    facts: UserFact[];
+    globalChatHistory: ChatMessage[];
+    dailyQuestions: DailyQuestion[];
+    lastInteraction: number;
+    aiPersonality: AIPersonality;
+}
+
+/** AI Personality settings that adapt based on user preferences */
+export interface AIPersonality {
+    tone: 'friendly' | 'professional' | 'casual' | 'motivational';
+    useQuotes: boolean;                    // Use motivational quotes
+    quoteSource?: string;                  // e.g., "One Piece", "Naruto", "general"
+    encouragementStyle: 'gentle' | 'direct' | 'enthusiastic';
+    nickname?: string;                     // What AI calls the user
+}
+
+/** A scheduled study task */
+export interface ScheduledTask {
+    id: string;
+    title: string;                         // "Learn React"
+    description?: string;
+    courseId?: string;                     // Link to course if applicable
+    scheduledStart: number;                // Unix timestamp
+    scheduledEnd: number;                  // Unix timestamp
+    status: 'pending' | 'started' | 'completed' | 'missed' | 'snoozed';
+    remindersSent: number[];               // Timestamps of sent reminders
+    completedAt?: number;
+    createdAt: number;
+}
+
+/** A recurring study schedule */
+export interface RecurringSchedule {
+    id: string;
+    title: string;
+    description?: string;
+    courseId?: string;
+    daysOfWeek: number[];                  // 0-6 (Sun-Sat)
+    startTime: string;                     // "16:00" (4 PM)
+    endTime: string;                       // "17:00" (5 PM)
+    isActive: boolean;
+    createdAt: number;
+}
+
+/** A reminder notification */
+export interface Reminder {
+    id: string;
+    taskId: string;
+    type: 'start' | 'delayed_start' | 'completion' | 'encouragement' | 'streak';
+    scheduledFor: number;
+    sent: boolean;
+    message: string;
+    dismissedAt?: number;
+}
+
+/** Study schedule - all tasks and reminders */
+export interface StudySchedule {
+    tasks: ScheduledTask[];
+    recurringSchedules: RecurringSchedule[];
+    pendingReminders: Reminder[];
+}
+
+/** AI Notification that can appear in-app or as system notification */
+export interface AINotification {
+    id: string;
+    type: 'reminder' | 'encouragement' | 'milestone' | 'question' | 'tip';
+    title: string;
+    message: string;
+    actions?: { label: string; action: string }[];  // Quick action buttons
+    priority: 'low' | 'medium' | 'high';
+    createdAt: number;
+    expiresAt?: number;
+    read: boolean;
+    questionId?: string;  // Link to daily question for answering
+}
+
 export interface UserProfile {
     name: string;
+    age: number;
     studyGoal: number; // Daily goal in hours
     preferredTime: string; // "morning", "night", etc.
 }
@@ -133,6 +237,7 @@ export interface LibraryState {
         a4fApiKey: string | null;
         shortcuts: Record<string, string>;
         hasSeenTour: boolean;
+        autoStartWithWindows: boolean;
     }
     fluxZeroGpuUuid: string | null;
 
@@ -152,6 +257,7 @@ export interface LibraryState {
     setCourseColor: (courseId: string, color: string) => void;
     setDevMode: (enabled: boolean) => void;
     setHasSeenTour: () => void;
+    setAutoStartWithWindows: (enabled: boolean) => void;
     addManualStudyLog: (date: string, seconds: number) => void;
 
     // Folder Actions
@@ -190,8 +296,4 @@ export interface LibraryState {
     clearChatSession: (videoId: string) => void;
 }
 
-declare global {
-    interface Window {
-        electron: any;
-    }
-}
+

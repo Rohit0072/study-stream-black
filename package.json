@@ -1,6 +1,6 @@
 {
   "name": "study-stream",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "main": "electron/dist/main.js",
   "author": "Study Stream",
@@ -27,9 +27,17 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "perMachine": false,
+      "perMachine": true,
       "deleteAppDataOnUninstall": false,
-      "runAfterFinish": true
+      "runAfterFinish": true,
+      "installerIcon": "icons/icon.ico",
+      "uninstallerIcon": "icons/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Study Stream",
+      "include": "build/installer.nsh",
+      "differentialPackage": true,
+      "artifactName": "StudyStream-Setup-${version}.${ext}"
     },
     "files": [
       "out/**/*",
@@ -68,6 +76,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/typography": "^0.5.19",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -78,6 +87,7 @@
     "idb-keyval": "^6.2.2",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
+    "node-notifier": "^10.0.1",
     "openai": "^6.15.0",
     "plyr-react": "^6.0.0",
     "react": "19.2.3",
@@ -90,6 +100,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.27",
+    "@types/node-notifier": "^8.0.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",

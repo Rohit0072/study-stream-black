@@ -2,17 +2,27 @@ import { FolderInput, BookOpen, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLibraryStore } from "@/store/library-store";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function EmptyLibrary() {
     const { addCourse } = useLibraryStore();
     const router = useRouter();
 
     const handleImport = async () => {
-        if ((window as any).electron) {
+        try {
+            if (!(window as any).electron) {
+                toast.error("This feature requires the desktop app");
+                return;
+            }
+
             const result = await (window as any).electron.selectFolder();
             if (result) {
                 addCourse(result);
+                toast.success("Course imported successfully!");
             }
+        } catch (error) {
+            console.error("[EmptyLibrary] Import error:", error);
+            toast.error("Failed to import folder. Please try again.");
         }
     };
 

@@ -1,20 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// Removed Google Fonts imports to fix build error
 import "./globals.css";
-import { Toaster } from "sonner";
-import { DebugMenu } from "@/components/debug/debug-menu";
-
-import { ShortcutsModal } from "@/components/layout/shortcuts-modal";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { ClientErrorBoundary } from "@/components/layout/client-error-boundary";
+import { GlobalUIProvider } from "@/components/layout/global-ui-provider";
 
 export const metadata: Metadata = {
   title: "Study Stream",
@@ -32,14 +20,19 @@ export default function RootLayout({
         <script src="https://js.puter.com/v2/"></script>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased font-sans"
+        style={{
+          fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+        }}
       >
-
-        <ShortcutsModal />
-        {children}
-        <DebugMenu />
-        <Toaster theme="dark" position="bottom-right" />
+        <ClientErrorBoundary>
+          <GlobalUIProvider />
+          {children}
+        </ClientErrorBoundary>
       </body>
     </html>
   );
 }
+
+
+

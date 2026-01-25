@@ -15,7 +15,8 @@ export function AppTour() {
         const driverObj = driver({
             showProgress: true,
             animate: true,
-            allowClose: false,
+            allowClose: true,
+
             doneBtnText: "Done",
             nextBtnText: "Next",
             prevBtnText: "Previous",

@@ -56,7 +56,7 @@ export function DebugMenu() {
     if (!devMode) return null;
 
     return (
-        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 font-sans">
+        <div className="fixed bottom-6 right-24 z-50 flex flex-col items-end gap-2 font-sans">
             {/* Floating Toggle Button */}
             {!isOpen && (
                 <Button
