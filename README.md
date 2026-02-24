@@ -4,13 +4,13 @@
   <br />
   <br />
 
-  <a href="https://github.com/your-username/your-repo">
+  <a href="https://rohit0072.github.io/study-stream-black/">
     <img src="./ads/logo.png" alt="Logo" width="120" />
   </a>
 
   <!-- Typing Animation Header -->
   <h1>
-    <a href="https://github.com/your-username/your-repo">
+    <a href="https://rohit0072.github.io/study-stream-black/">
       <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=40&pause=1000&color=2E9EF4&center=true&vCenter=true&repeat=true&width=500&lines=Study+Stream+Black" alt="Study Stream Black" />
     </a>
   </h1>
@@ -18,6 +18,13 @@
   <!-- Subtitle Typing Animation -->
   <p>
     <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=400&size=18&pause=1000&color=FFFFFF&center=true&vCenter=true&random=false&width=600&lines=Your+Ultimate+Offline+Course+Viewing+%26+Productivity+Hub!" alt="Subtitle" />
+  </p>
+
+  <!-- Landing Page Button -->
+  <p>
+    <a href="https://rohit0072.github.io/study-stream-black/">
+      <img src="https://img.shields.io/badge/Visit-Official_Website-red?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Website">
+    </a>
   </p>
 
   <!-- Spicy Badges Row -->
@@ -193,9 +200,9 @@ We're constantly adding more **amazing things**! Here is what is cooking:
   <br/><br/>
   <i>"Study smarter, not harder. Let your stream of knowledge flow."</i>
   <br/><br/>
-  <a href="https://github.com/your-username/your-repo">
+  <a href="https://github.com/Rohit0072/study-stream-black">
     <img src="https://img.shields.io/badge/Get_Started-Now!-blue?style=for-the-badge&logo=rocket" alt="Get Started">
   </a>
   <br/><br/>
-  <img src="https://komarev.com/ghpvc/?username=your-github-username&label=Profile%20Views&color=0e75b6&style=flat" alt="Profile Views" />
+  <img src="https://komarev.com/ghpvc/?username=Rohit0072&label=Profile%20Views&color=0e75b6&style=flat" alt="Profile Views" />
 </div>
