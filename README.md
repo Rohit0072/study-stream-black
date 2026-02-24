@@ -4,13 +4,13 @@
   <br />
   <br />
 
-  <a href="https://rohit0072.github.io/study-stream-black/">
+  <a href="https://rohit0072.github.io/study-stream-site/">
     <img src="./ads/logo.png" alt="Logo" width="120" />
   </a>
 
   <!-- Typing Animation Header -->
   <h1>
-    <a href="https://rohit0072.github.io/study-stream-black/">
+    <a href="https://rohit0072.github.io/study-stream-site/">
       <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=40&pause=1000&color=2E9EF4&center=true&vCenter=true&repeat=true&width=500&lines=Study+Stream+Black" alt="Study Stream Black" />
     </a>
   </h1>
@@ -22,7 +22,7 @@
 
   <!-- Landing Page Button -->
   <p>
-    <a href="https://rohit0072.github.io/study-stream-black/">
+    <a href="https://rohit0072.github.io/study-stream-site/">
       <img src="https://img.shields.io/badge/Visit-Official_Website-red?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Website">
     </a>
   </p>
